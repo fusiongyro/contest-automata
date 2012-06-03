@@ -114,14 +114,10 @@ parseTransitionList = endBy parseTransition (many1 (oneOf " \n"))
 
 parseDocument :: Parser Document
 parseDocument = do
-  states <- parseStateList <* newline
-  separator
-  symbols <- parseAlphabet <* newline
-  separator
-  transitions <- parseTransitionList
-  separator
-  startState <- parseState <* newline
-  separator
+  states <- parseStateList <* newline <* separator
+  symbols <- parseAlphabet <* newline <* separator
+  transitions <- parseTransitionList <* separator
+  startState <- parseState <* newline <* separator
   acceptingStates <- parseStateList
   return $ Document states symbols transitions startState acceptingStates
   where
@@ -132,7 +128,7 @@ doc = case parse parseDocument "" sample of Right doc -> doc
 generateFunctions :: Document -> String
 generateFunctions doc = unlines $ map generateFunction' $ states doc
   where
-    generateFunction' myState = generateFunction myState (isAcceptingState myState doc) [ t | t <- transitions doc, inState t == myState ]
+    generateFunction' myState  = generateFunction myState (isAcceptingState myState doc) [ t | t <- transitions doc, inState t == myState ]
     isAcceptingState state doc = state `elem` (acceptingStates doc)
 
 generateFunction :: Name -> Bool -> [Transition] -> String
