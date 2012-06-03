@@ -1,0 +1,8 @@
+This puzzle will ask the user to provide a DFA that accepts all
+strings such that in every 5 characters there is three consecutive
+0's.
+
+Correct: 00011|10001
+Incorrect: 00011|11100
+
+Given: string with 0's and 1's

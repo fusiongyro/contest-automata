@@ -1,0 +1,106 @@
+- Parts 
+A rough idea of the programs need 
+* compiler (translate NFA to Haskell code) 
+* auto grader 
+* connector 
+
+- Compiler (filename)
+Compiles given NFA code into a Haskell code. Assumes that it is given the 
+test cases and a users NFA. Will produce Haskell code to test the users 
+NFA.
+Example: 
+python xor.nfa 
+
+There should be no errors at compilation. (need specification for this 
+later)
+
+
+- Check Answers 
+Check the output of an NFA with the known correct solution. 
+Example: 
+python check-answers.py out.dat correct.dat 
+
+- Run 
+Runs the given code to produce an output for the produced NFA.  
+
+Example: 
+python run-nfa.py xor.nfa > out.dat
+
+- Auto Grader (submission dir) (problem number) (filename)  
+Takes a given NFA code and calls a compiler on it and then runs thew newly
+translated code. Given a problem number and code compile the test cases 
+and NFA code. Then run the newly generated code and check that it's output 
+is correct against the known output. The steps the auto grader are compile 
+Example: 
+python auto-grader.py 1 21 xor.nfa
+
+- Connector  
+A interface to the autor grader. The connector will be given a problem 
+number and NFA code and check to see if it is a correct solution, by 
+calling the auto grader. In order to call the auto grader, will first write
+out a file containing the users NFA, it will pass a submission directory, 
+problem number and a filename. If 11 submissions are given at once, one 
+will be waiting in a queue. 
+
+First version of connector should just be python script that takes the 
+problem number and and NFA code. 
+Example: 
+python connector.py 21 xor.nfa
+
+Second version will be network based and handle multiple sessions. 
+
+-- Notes 
+Directory structure (from the root of home for user Turing) 
+/Turing
+   /1 
+       @author 
+       @notes 
+       input.dat
+       answer.dat 
+   /2 
+       @author 
+       @notes 
+       input.dat
+       answer.dat 
+   . 
+   . 
+   . 
+   /100 
+       @author 
+       @notes 
+       input.dat
+       answer.dat 
+
+/Submissions  
+   /1 <- run compile here then copy over answer.dat and run check
+   /2
+   /3 
+   . 
+   . 
+   . 
+   /10
+/auto-grader.py <- run it here 
+/connector.py 
+/input.teamname.nfa (where teamname is unique) 
+...
+/input.teamname.nfa
+/result.teamname.nfa
+
+The auto-grader will use the test directory to compile and run peoples code.
+The connector will pass the auto-grader information on what directory to 
+use. 
+
+- Walk Through 
+user: calls connector.py 
+connector.py: calls auto-grader.py 
+auto-grader: copies input.teamname.dat into Submission dir 
+auto-grader: copies input.dat to Submissions dir 
+auto-grader: calls compile in Submission dir 
+compile: reads in input.dat and intput.teamname.dat and outputs teamname.nfa
+run: executes teamname.nfa, which outputs output.dat 
+auto-grader: copies over solution.dat 
+auto-grader: diffs solution.dat and output.dat and reports the 
+             solution in result.teamname.dat and deletes input.teamname.dat
+
+- Extras 
+diff is a unix call. 

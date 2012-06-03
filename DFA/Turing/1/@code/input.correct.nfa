@@ -1,0 +1,15 @@
+q0, q1
+
+#
+//Only allowing input of 1's
+1
+
+#
+
+q0:1->q1
+
+q1:1->q0
+
+#
+//Single final state 
+q0

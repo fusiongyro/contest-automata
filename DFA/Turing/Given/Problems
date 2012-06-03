@@ -1,0 +1,33 @@
+Turing puzzles are a set of problems that check contestent submissions of 
+a DFA to see if is right. 
+
+List of problems 
+* 1 
+language of even string length
+
+* 2 
+language of (10)*
+
+* 5 
+language of even number of 1s and 0s  
+
+* 10 
+language of three zeros in every five charectors
+
+* 20 
+language of OR (with two strings) 
+
+* 21 
+language of AND 
+
+* 25 
+language of XOR (with three strings)
+
+* 50 
+language of addition 
+
+* 60 
+language of binary strings that are divisable by 5 
+
+  
+
