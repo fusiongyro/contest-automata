@@ -1,4 +1,4 @@
-module PParse where
+module DFA.Parse where
 
 import Control.Monad (void)
 import Control.Applicative ((<$>), (<*>), (<*), (*>))
@@ -10,7 +10,7 @@ import Text.Parsec.Prim
 import Text.Parsec.Pos
 import Text.Parsec.Error
 
-import PTokenize
+import DFA.Tokenize
 
 type TokenParser = GenParser Token ()
 type TokenParserSt u = GenParser Token u

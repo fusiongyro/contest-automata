@@ -1,4 +1,4 @@
-module PTokenize where -- (Token(..), tokenize) where
+module DFA.Tokenize where -- (Token(..), tokenize) where
 
 import Data.Char
 import Control.Applicative ((<$>), (<*>), (<*), (*>))

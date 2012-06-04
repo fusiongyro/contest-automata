@@ -15,10 +15,13 @@ Cabal-version:       >=1.2
 
 Executable contest-automata
   -- .hs or .lhs file containing the Main module.
-  -- Main-is:             
+  Main-is: Main.hs
+
+  HS-Source-Dirs: src
   
   -- Packages needed in order to build this package.
   Build-depends: 
+    base >= 4.0,
     parsec >= 3.1.2
   
   -- Modules not exported by this package.
