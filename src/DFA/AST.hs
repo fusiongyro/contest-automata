@@ -5,12 +5,14 @@ import Data.Graph.Inductive.PatriciaTree
 
 type Transition = (String, String, String)
 
+data State = State { name :: String, isAccepting :: Bool }
+             deriving (Show, Eq)
+
 data DFA = DFA 
-  { initialState :: LNode String
-  , acceptingStates :: [LNode String]
+  { initialState :: LNode State
   , alphabet :: [String]
-  , graph :: Gr String String
+  , graph :: Gr State String
   }
 
 instance Show DFA where
-  show (DFA init accept alphabet g) = "DFA " ++ show (alphabet, init, accept, labEdges g)
+  show (DFA init alphabet g) = "DFA " ++ show (alphabet, init, labEdges g)
