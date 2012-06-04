@@ -1,5 +1,6 @@
-module PTokenize (Token(..), tokenize) where
+module PTokenize where -- (Token(..), tokenize) where
 
+import Data.Char
 import Control.Applicative ((<$>), (<*>), (<*), (*>))
 
 import Text.Parsec.Char
@@ -30,9 +31,44 @@ dfatoken  =  tArrow
     tString = TString <$> (many1 alphaNum)
 
 comment :: Parser ()
-comment = string "//" >> satisfy (/= '\n') >> return ()
+comment = do
+  try $ string "//"
+  skipMany $ satisfy (/= '\n')
+  return ()
 
-skipJunk  =  comment <|> spaces
+skipJunk  =  skipMany (comment <|> simpleSpace)
+    where
+      simpleSpace = skipMany1 (satisfy isSpace)
+
+lexeme = do
+  tok <- dfatoken
+  skipJunk
+  return tok
 
 tokenize :: Parser [Token]
-tokenize = endBy dfatoken skipJunk
+tokenize = many1 (skipJunk >> lexeme)
+
+--
+sample :: String
+sample = "q0, q1, q2, q3\n\
+\#\n\
+\1,0\n\
+\#\n\
+\q0:1->q3\n\
+\q0:0->q1\n\
+\\n\
+\// This is a comment\n\
+\\n\
+\q1:1->q2\n\
+\q1:0->q3\n\
+\\n\
+\q2:1->q3\n\
+\q2:0->q1\n\
+\\n\
+\q3:1->q3\n\
+\q3:0->q3\n\
+\\n\
+\#\n\
+\q0\n\
+\#\n\
+\q0, q2\n"

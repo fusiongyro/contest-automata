@@ -68,31 +68,6 @@ parseTransition =
 parseTransitions :: TokenParser [Transition]
 parseTransitions = many1 parseTransition
 
---
-sample :: String
-sample = "q0, q1, q2, q3\n\
-\#\n\
-\1,0\n\
-\#\n\
-\q0:1->q3\n\
-\q0:0->q1\n\
-\\n\
-\// This is a comment\n\
-\\n\
-\q1:1->q2\n\
-\q1:0->q3\n\
-\\n\
-\q2:1->q3\n\
-\q2:0->q1\n\
-\\n\
-\q3:1->q3\n\
-\q3:0->q3\n\
-\\n\
-\#\n\
-\q0\n\
-\#\n\
-\q0, q2\n"
-
 parseDFA :: TokenParser DFA
 parseDFA = do
   parseStates
