@@ -11,20 +11,10 @@ import Text.Parsec.Pos
 import Text.Parsec.Error
 
 import DFA.Tokenize
+import DFA.AST
 
 type TokenParser = GenParser Token ()
 type TokenParserSt u = GenParser Token u
-
-data Transition = T String String String
-  deriving (Show, Eq)
-
-data DFA = DFA 
-  { initialState :: String
-  , acceptingStates :: [String]
-  , alphabet :: [String]
-  , transitions :: [Transition]
-  }
-  deriving (Show, Eq)
 
 tokenEater
   :: (Stream s m a, Show a) => (a -> Bool) -> ParsecT s u m a
