@@ -1,13 +1,16 @@
 module DFA.AST where
 
-data Transition = T String String String
-  deriving (Show, Eq)
+import Data.Graph.Inductive.Graph
+import Data.Graph.Inductive.PatriciaTree
+
+type Transition = (String, String, String)
 
 data DFA = DFA 
-  { initialState :: String
-  , acceptingStates :: [String]
+  { initialState :: LNode String
+  , acceptingStates :: [LNode String]
   , alphabet :: [String]
-  , transitions :: [Transition]
+  , graph :: Gr String String
   }
-  deriving (Show, Eq)
 
+instance Show DFA where
+  show (DFA init accept alphabet g) = "DFA " ++ show (alphabet, init, accept, labEdges g)

@@ -2,6 +2,8 @@ module DFA.Parse where
 
 import Control.Monad (void)
 import Control.Applicative ((<$>), (<*>), (<*), (*>))
+import Data.Maybe
+import Data.List
 
 import Text.Parsec.Char
 import Text.Parsec.String
@@ -9,6 +11,9 @@ import Text.Parsec.Combinator
 import Text.Parsec.Prim
 import Text.Parsec.Pos
 import Text.Parsec.Error
+
+import Data.Graph.Inductive.Graph
+import Data.Graph.Inductive.PatriciaTree
 
 import DFA.Tokenize
 import DFA.AST
@@ -43,14 +48,32 @@ parseAlphabet = parseCommaSeparatedStrings
 
 parseTransition :: TokenParser Transition
 parseTransition = 
-  T <$> stringTok <* (tok TColon) <*> stringTok <* (tok TArrow) <*> stringTok
+  (,,) <$> stringTok <* (tok TColon) <*> stringTok <* (tok TArrow) <*> stringTok
 
 parseTransitions :: TokenParser [Transition]
 parseTransitions = many1 parseTransition
 
+generateGraph :: [String] -> [Transition] -> Gr String String
+generateGraph nodes transitions = mkGraph labeledNodes labeledTransitions
+    where
+      labeledNodes       = zipWith (,) [1..] nodes
+      get n              = fst $ fromJust $ find (\(i, name) -> name == n) labeledNodes
+      labeledTransitions = map (\(start,reading,end) -> (get start, get end, reading)) transitions
+
+nodeLabeled :: (Eq a, Graph g) => g a b -> a -> Maybe (LNode a)
+nodeLabeled g label = find (\(_,lab) -> label == lab) (labNodes g)
+
+generateDFA :: [String] -> [String] -> [Transition] -> String -> [String] -> DFA
+generateDFA states alphabet transitions initialState acceptingStates = 
+  DFA init accept alphabet graph
+      where
+        graph = (generateGraph states transitions)
+        init = fromJust $ nodeLabeled graph initialState
+        accept = map (fromJust . nodeLabeled graph) acceptingStates
+
 parseDFA :: TokenParser DFA
 parseDFA = do
-  parseStates
+  states <- parseStates
   tok TPound
   alphabet <- parseAlphabet
   tok TPound
@@ -59,7 +82,7 @@ parseDFA = do
   initialState <- stringTok
   tok TPound
   acceptingStates <- parseStates
-  return $ DFA initialState acceptingStates alphabet transitions
+  return $ generateDFA states alphabet transitions initialState acceptingStates
   
 readDFA :: String -> Either ParseError DFA
 readDFA s = do
