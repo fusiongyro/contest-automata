@@ -36,34 +36,22 @@ tokenEater matcher =
 tok :: Token -> TokenParser Token
 tok t = tokenEater (==t)
 
-tokenToString :: Token -> String
-tokenToString (TString s) = s
-
-tokenString :: TokenParser String
-tokenString = tokenEater stringLike >>= return . tokenToString
+stringTok :: TokenParser String
+stringTok = tokenEater stringLike >>= return . (\(TString s) -> s)
   where
     stringLike :: Token -> Bool
     stringLike (TString _) = True
     stringLike _ = False
 
-tokenConst :: Token -> TokenParser ()
-tokenConst t = void $ tok t
-
-tokenColon, tokenArrow, tokenPound :: TokenParser ()
-tokenColon = tokenConst TColon
-tokenArrow = tokenConst TArrow
-tokenPound = tokenConst TPound
-
--- parseTest (tok TColon) [TComma]
 parseCommaSeparatedStrings :: TokenParser [String]
-parseCommaSeparatedStrings = sepBy tokenString (tok TComma)
+parseCommaSeparatedStrings = sepBy stringTok (tok TComma)
 
 parseStates   = parseCommaSeparatedStrings
 parseAlphabet = parseCommaSeparatedStrings
 
 parseTransition :: TokenParser Transition
 parseTransition = 
-  T <$> tokenString <* tokenColon <*> tokenString <* tokenArrow <*> tokenString
+  T <$> stringTok <* (tok TColon) <*> stringTok <* (tok TArrow) <*> stringTok
 
 parseTransitions :: TokenParser [Transition]
 parseTransitions = many1 parseTransition
@@ -71,13 +59,13 @@ parseTransitions = many1 parseTransition
 parseDFA :: TokenParser DFA
 parseDFA = do
   parseStates
-  tokenPound
+  tok TPound
   alphabet <- parseAlphabet
-  tokenPound
+  tok TPound
   transitions <- parseTransitions
-  tokenPound
-  initialState <- tokenString
-  tokenPound
+  tok TPound
+  initialState <- stringTok
+  tok TPound
   acceptingStates <- parseStates
   return $ DFA initialState acceptingStates alphabet transitions
   
