@@ -77,6 +77,8 @@ sample = "q0, q1, q2, q3\n\
 \q0:1->q3\n\
 \q0:0->q1\n\
 \\n\
+\// This is a comment\n\
+\\n\
 \q1:1->q2\n\
 \q1:0->q3\n\
 \\n\

@@ -30,10 +30,9 @@ dfatoken  =  tArrow
     tString = TString <$> (many1 alphaNum)
 
 comment :: Parser ()
-comment = string "//" >> many (noneOf "\n") >> newline >> return ()
+comment = string "//" >> satisfy (/= '\n') >> return ()
 
-skipJunk  =  comment
-         <|> spaces
+skipJunk  =  comment <|> spaces
 
 tokenize :: Parser [Token]
 tokenize = endBy dfatoken skipJunk
