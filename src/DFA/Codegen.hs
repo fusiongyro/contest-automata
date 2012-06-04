@@ -23,9 +23,9 @@ generate dfa@(DFA initialState alphabet graph) =
                 finalState       = accept myId me
                 transitionStates = map (transition me) outbound
 
---          accept :: Node -> State -> String
+          accept :: Node -> State -> String
           accept myId (State me accepting) = printf "%s [] = %s" me (if accepting then "Accept" else "Reject")
 
---          transition :: Node -> LEdge String -> String
+          transition :: State -> (String, Node) -> String
           transition (State from _) (reading, destination) = 
               printf "%s (\"%s\":xs) = %s xs" from reading (name (label graph destination))
