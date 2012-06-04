@@ -16,6 +16,8 @@ import DFA.AST
 type TokenParser = GenParser Token ()
 type TokenParserSt u = GenParser Token u
 
+sample2 = sample
+
 tokenEater
   :: (Stream s m a, Show a) => (a -> Bool) -> ParsecT s u m a
 tokenEater matcher = 
