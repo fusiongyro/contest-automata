@@ -106,11 +106,19 @@ parseAlphabet :: Parser [Symbol]
 parseAlphabet = parseCommaSeparatedList parseSymbol <* spaces
 
 parseTransition :: Parser Transition
-parseTransition =
-  Transition <$> parseState <* char ':' <*> parseSymbol <* string "->" <*> parseState <* spaces
+parseTransition = do
+  startState <- parseState
+  char ':' >> spaces
+  reading <- parseSymbol
+  spaces
+  string "->"
+  spaces
+  toState <- parseState
+  spaces
+  return $ Transition startState reading toState
 
 parseTransitionList :: Parser [Transition]
-parseTransitionList = endBy parseTransition (many1 (oneOf " \n"))
+parseTransitionList = endBy parseTransition (many (char '\n'))
 
 parseDocument :: Parser Document
 parseDocument = do
