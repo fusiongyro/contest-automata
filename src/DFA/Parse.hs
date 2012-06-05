@@ -53,48 +53,18 @@ parseTransition =
 parseTransitions :: TokenParser [Transition]
 parseTransitions = many1 parseTransition
 
-generateGraph :: [State] -> [Transition] -> Gr State String
-generateGraph nodes transitions = mkGraph labeledNodes labeledTransitions
-    where
-      labeledNodes       = zipWith (,) [1..] nodes
-      get n              = fst $ fromJust $ find (\(i, (State name _)) -> name == n) labeledNodes
-      labeledTransitions = map (\(start,reading,end) -> (get start, get end, reading)) transitions
-
---nodeLabeled :: (Eq a, Graph g) => g a b -> a -> Maybe (LNode a)
---nodeLabeled g label = find (\(_,lab) -> label == lab) (labNodes g)
-
-generateDFA :: [String] -> [String] -> [Transition] -> String -> [String] -> DFA
-generateDFA stateNames alphabet transitions initialState acceptingStates = 
-  DFA init alphabet graph
-      where
-        graph = (generateGraph states transitions)
-        states = map (\n -> State n (n `elem` acceptingStates)) stateNames
-        init = fromJust $ find (\(_, (State name _)) -> name == initialState) (labNodes graph)
-        --accept = map (labeled graph) acceptingStates
-
 labeled :: Graph gr => gr a b -> Node -> a
 labeled graph = lab' . context graph
 
 parseDFA :: TokenParser DFA
-parseDFA = generateDFA <$> states <*> syms <*> trans <*> initial <*> parseStates
-    where
-      states  = parseStates <* tok TPound
-      syms    = parseAlphabet <* tok TPound
-      trans   = parseTransitions <* tok TPound
-      initial = stringTok <* tok TPound
-
-parseDFA' = do
-  states <- parseStates
-  tok TPound
-  alphabet <- parseAlphabet
-  tok TPound
-  transitions <- parseTransitions
-  tok TPound
-  initialState <- stringTok
-  tok TPound
+parseDFA = do
+  states          <- parseStates       <* tok TPound
+  alphabet        <- parseAlphabet     <* tok TPound
+  transitions     <- parseTransitions  <* tok TPound
+  initial         <- stringTok         <* tok TPound
   acceptingStates <- parseStates
-  return $ generateDFA states alphabet transitions initialState acceptingStates
-  
+  return $ makeDFA states alphabet initial acceptingStates transitions
+    
 readDFA :: String -> Either ParseError DFA
 readDFA s = do
   tokens <- parse tokenize "" s

@@ -7,25 +7,33 @@ import Data.Graph.Inductive.Graph
 
 import DFA.AST
 
---isAccepting :: DFA -> LNode String -> Bool
---isAccepting (DFA _ accepting _ _) lnode = lnode `elem` accepting
-
 label :: Graph gr => gr a b -> Node -> a
 label graph = lab' . context graph
 
 generate :: DFA -> String
 generate dfa@(DFA initialState alphabet graph) = 
-    unlines $ ufold generator [] graph
+    unlines $ map generator (labNodes graph)
         where
-          generator (_, myId, me, outbound) c = (unlines $ genlinks myId me outbound) : c
-          genlinks myId me outbound = finalState : transitionStates
-              where
-                finalState       = accept myId me
-                transitionStates = map (transition me) outbound
+          generator :: StateNode -> String
+          generator (myId, me) = unlines $ generateFunction (myId, me)
+          
+          generateFunction :: StateNode -> [String]
+          generateFunction node = generateBaseCase node : generateEdgeCases node
+          
+          generateBaseCase :: StateNode -> String
+          generateBaseCase (myId, me) = 
+            printf 
+              "%s [] = %s" 
+              (name me)
+              (if isAccepting me then "Accept" else "Reject")
+          
+          generateEdgeCases :: StateNode -> [String]
+          generateEdgeCases node@(myId, _) = map (generateEdgeCase node) (out graph myId)
 
-          accept :: Node -> State -> String
-          accept myId (State me accepting) = printf "%s [] = %s" me (if accepting then "Accept" else "Reject")
-
-          transition :: State -> (String, Node) -> String
-          transition (State from _) (reading, destination) = 
-              printf "%s (\"%s\":xs) = %s xs" from reading (name (label graph destination))
+          generateEdgeCase :: StateNode -> DFAEdge -> String
+          generateEdgeCase (myId, me) (_, toId, reading) = 
+            printf 
+              "%s (\"%s\":xs) = %s xs"
+              (name me)
+              reading
+              (name (label graph toId))
