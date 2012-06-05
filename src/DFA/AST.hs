@@ -1,6 +1,6 @@
 module DFA.AST 
   ( module Data.Graph.Inductive.Graph
-  , module Data.Graph.Inductive.PatriciaTree
+  , module Data.Graph.Inductive.Tree
   , Name
   , Symbol
   , Alphabet
@@ -16,7 +16,7 @@ import Data.List
 import Data.Maybe
 
 import Data.Graph.Inductive.Graph
-import Data.Graph.Inductive.PatriciaTree
+import Data.Graph.Inductive.Tree
 
 type Name     = String
 type Symbol   = String

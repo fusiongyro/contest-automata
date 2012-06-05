@@ -1,5 +1,6 @@
 module DFA.Codegen (generate) where
 
+import Data.Function
 import Data.List
 import Text.Printf
 
@@ -8,9 +9,19 @@ import Data.Graph.Inductive.Utils
 
 import DFA.AST
 
+filetop = "module Main where\n\
+\\n\
+\main = do\n\
+\  input <- read $ getContents :: [String]\n\
+\  putStrLn $ initialState input"
+
+header :: DFA -> String
+header dfa@(DFA (_, (State initialState _)) _ _) = 
+    printf "%s\ninitialState = %s\n" filetop initialState
+
 generate :: DFA -> String
 generate dfa@(DFA initialState alphabet graph) = 
-  unlines $ map generator (labNodes graph)
+  unlines $ header dfa : map generator (labNodes graph)
     where
       -- Generates the function for each node in the graph
       generator :: StateNode -> String
@@ -25,14 +36,17 @@ generate dfa@(DFA initialState alphabet graph) =
       genBaseCase :: StateNode -> String
       genBaseCase (myId, me) = 
         printf 
-          "%s [] = %s" 
+          "%s [] = \"%s\"" 
           (name me)
           (if isAccepting me then "Accept" else "Reject")
       
       -- Given a node, generate the inductive cases for it using the edges 
       -- of the graph
       genEdgeCases :: StateNode -> [String]
-      genEdgeCases node@(myId, _) = map (genEdgeCase node) (out graph myId)
+      genEdgeCases node@(myId, _) = map (genEdgeCase node) edges
+          where
+            edges = sortBy (compare `on` third) (out graph myId)
+            third (_, _, th) = th
     
       -- Given a node and an edge, generate the corresponding inductive case
       genEdgeCase :: StateNode -> DFAEdge -> String
