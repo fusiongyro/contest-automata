@@ -1,39 +1,44 @@
-module DFA.Codegen where
+module DFA.Codegen (generate) where
 
 import Data.List
 import Text.Printf
 
 import Data.Graph.Inductive.Graph
+import Data.Graph.Inductive.Utils
 
 import DFA.AST
 
-label :: Graph gr => gr a b -> Node -> a
-label graph = lab' . context graph
-
 generate :: DFA -> String
 generate dfa@(DFA initialState alphabet graph) = 
-    unlines $ map generator (labNodes graph)
-        where
-          generator :: StateNode -> String
-          generator (myId, me) = unlines $ generateFunction (myId, me)
-          
-          generateFunction :: StateNode -> [String]
-          generateFunction node = generateBaseCase node : generateEdgeCases node
-          
-          generateBaseCase :: StateNode -> String
-          generateBaseCase (myId, me) = 
-            printf 
-              "%s [] = %s" 
-              (name me)
-              (if isAccepting me then "Accept" else "Reject")
-          
-          generateEdgeCases :: StateNode -> [String]
-          generateEdgeCases node@(myId, _) = map (generateEdgeCase node) (out graph myId)
-
-          generateEdgeCase :: StateNode -> DFAEdge -> String
-          generateEdgeCase (myId, me) (_, toId, reading) = 
-            printf 
-              "%s (\"%s\":xs) = %s xs"
-              (name me)
-              reading
-              (name (label graph toId))
+  unlines $ map generator (labNodes graph)
+    where
+      -- Generates the function for each node in the graph
+      generator :: StateNode -> String
+      generator (myId, me) = unlines $ genFunction (myId, me)
+      
+      -- Given a node, generate its function by generating the base case
+      -- and the inductive cases
+      genFunction :: StateNode -> [String]
+      genFunction node = genBaseCase node : genEdgeCases node
+      
+      -- Given a node, generate the base case for it
+      genBaseCase :: StateNode -> String
+      genBaseCase (myId, me) = 
+        printf 
+          "%s [] = %s" 
+          (name me)
+          (if isAccepting me then "Accept" else "Reject")
+      
+      -- Given a node, generate the inductive cases for it using the edges 
+      -- of the graph
+      genEdgeCases :: StateNode -> [String]
+      genEdgeCases node@(myId, _) = map (genEdgeCase node) (out graph myId)
+    
+      -- Given a node and an edge, generate the corresponding inductive case
+      genEdgeCase :: StateNode -> DFAEdge -> String
+      genEdgeCase (myId, me) (_, toId, reading) = 
+        printf 
+          "%s (\"%s\":xs) = %s xs"
+          (name me)
+          reading
+          (name (label graph toId))

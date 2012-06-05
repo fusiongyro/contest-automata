@@ -1,4 +1,16 @@
-module DFA.AST where
+module DFA.AST 
+  ( module Data.Graph.Inductive.Graph
+  , module Data.Graph.Inductive.PatriciaTree
+  , Name
+  , Symbol
+  , Alphabet
+  , StateNode
+  , DFAEdge
+  , Transition
+  , DFAGraph
+  , State(..)
+  , DFA(..)
+  , makeDFA) where
 
 import Data.List
 import Data.Maybe
@@ -29,6 +41,7 @@ data DFA = DFA
 instance Show DFA where
   show (DFA init alphabet g) = "DFA " ++ show (alphabet, init, labNodes g, labEdges g)
 
+-- Generate the DFA from the stuff we have parsed.
 makeDFA :: [Name] -> Alphabet -> Name -> [Name] -> [Transition] -> DFA
 makeDFA stateNames alphabet initialStateName acceptingStates transitions = 
   DFA initialState alphabet graph
@@ -43,7 +56,7 @@ makeDFA stateNames alphabet initialStateName acceptingStates transitions =
       makeState name = State name (name `elem` acceptingStates)
       
       nodes :: [StateNode]
-      nodes = zipWith (,) [0..] states
+      nodes = zip [0..] states
       
       edges :: [DFAEdge]
       edges = map makeTransition transitions
@@ -55,7 +68,7 @@ makeDFA stateNames alphabet initialStateName acceptingStates transitions =
       theNode named = fromJust $ find (byStateNodeNamed named) nodes
       
       byStateNodeNamed :: String -> StateNode -> Bool
-      byStateNodeNamed thisName (_, (State named _)) = thisName == named
+      byStateNodeNamed thisName (_, State named _) = thisName == named
       
       initialState :: StateNode
       initialState = theNode initialStateName
