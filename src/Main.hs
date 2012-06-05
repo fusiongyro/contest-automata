@@ -36,14 +36,15 @@ setInput :: FilePath -> Options -> Options
 setInput fp o = o { optInputFile = fp }
 
 options :: [OptDescr (Options -> Options)]
-options = [ Option "v" ["version"]  (NoArg  (setMode Version))         "show version"
-          , Option "h" ["help"]     (NoArg  (setMode Help))            "show this help"
-          , Option "t" ["test"]     (ReqArg (setMode . Test) "TESTS")  "test this case"
-          , Option "c" ["compile"]  (NoArg  (setMode GenCode))         "compile the DFA"
-          , Option "g" ["graphviz"] (NoArg  (setMode GenGraphviz))     "generate graphviz"
-          , Option "e" ["eval"]     (ReqArg (setMode . Eval) "INPUT")  "evaluate input"
-          , Option "o" ["output"]   (ReqArg  setOutput       "OUTPUT") "output file"
-          ]
+options = 
+  [ Option "v" ["version"]  (NoArg  (setMode Version))         "show version"
+  , Option "h" ["help"]     (NoArg  (setMode Help))            "show this help"
+  , Option "c" ["compile"]  (NoArg  (setMode GenCode))         "compile the DFA"
+  , Option "g" ["graphviz"] (NoArg  (setMode GenGraphviz))     "generate graphviz"
+  , Option "e" ["eval"]     (ReqArg (setMode . Eval) "INPUT")  "evaluate input"
+  , Option "t" ["test"]     (ReqArg (setMode . Test) "TESTS")  "test this case"
+  , Option "o" ["output"]   (ReqArg  setOutput       "OUTPUT") "output file"
+  ]
 
 parseCommandLine :: IO Options
 parseCommandLine = do
