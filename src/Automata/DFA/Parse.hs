@@ -56,7 +56,10 @@ parseDFA' = do
   acceptingStates <- parseStates
   return $ makeDFA states alphabet initial acceptingStates transitions
     
-parseDFA :: String -> Either ParseError DFA
-parseDFA s = do
+parsecParseDFA :: String -> Either ParseError DFA
+parsecParseDFA s = do
   tokens <- parse tokenize "" s
   parse parseDFA' "" tokens
+
+parseDFA :: String -> Either String DFA
+parseDFA = either (Left . show) Right . parsecParseDFA

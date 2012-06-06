@@ -30,9 +30,12 @@ Executable contest-automata
   HS-Source-Dirs: src
 
   Other-modules:
+    Automata
+    Automata.Automaton
     Automata.DFA
     Automata.DFA.AST,
     Automata.DFA.Codegen,
+    Automata.DFA.Evaluate
     Automata.DFA.Parse,
     Automata.DFA.Tokenize,
     Data.Graph.Inductive.Utils
