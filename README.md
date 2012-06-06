@@ -25,3 +25,15 @@ A DFA analysis program. Can:
   GraphViz for the DFA:
 
     dfa -g statemachine.dfa
+
+## Formats
+
+The evaluate input format is Haskell string lists separated by newlines, e.g.:
+
+    ["0", "1"]
+    ["0", "1", "0", "1"]
+
+The test input format is similar:
+
+    (["0", "1"], True)
+    (["1", "1"], False)
