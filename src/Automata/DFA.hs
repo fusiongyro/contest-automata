@@ -1,4 +1,4 @@
-module Automata.DFA (dfaToHaskell, parseDFA) where
+module Automata.DFA (dfaToHaskell, parseDFA, DFA) where
 
 import Automata.Automaton
 

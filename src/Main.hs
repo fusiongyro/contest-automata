@@ -3,6 +3,7 @@ module Main where
 import System.Environment
 import System.Console.GetOpt
 
+import Automata.Automaton
 import Automata.DFA
 
 data Mode = Help 
@@ -71,9 +72,23 @@ writeOutput filename = writeFile filename
 generateCode :: Options -> IO ()
 generateCode (Options _ outf inf) = do
   input <- getInput inf
-  case parseDFA input of
-    Left errs -> ioError $ userError $ show errs
-    Right dfa -> writeOutput outf $ dfaToHaskell dfa
+  case parseMachine input :: Either String DFA of
+    Left errs -> ioError $ userError errs
+    Right dfa -> writeOutput outf $ machineToHaskell dfa
+
+evaluateCode :: Options -> IO ()
+evaluateCode (Options (Eval testf) outf inf) = do
+  input <- getInput inf
+  case parseMachine input :: Either String DFA of
+    Left errs -> ioError $ userError errs
+    Right dfa -> evaluateInput dfa testf >>= writeOutput outf
+
+evaluateInput :: (Automaton a) => a -> FilePath -> IO String
+evaluateInput dfa testf = do
+  testContent <- (map read . lines) `fmap` getInput testf
+  return $ unlines $ map showAcceptance testContent
+    where
+      showAcceptance input = if evaluateMachine dfa input then "Accept" else "Reject"
 
 main = do
   commandLine <- parseCommandLine
@@ -82,4 +97,5 @@ main = do
       main'      (Options Version _ _)  = putStrLn $ versionInfo
       main'      (Options Help _ _)     = putStrLn $ usageInfo usage options
       main' opts@(Options GenCode _ _)  = generateCode opts
+      main' opts@(Options (Eval _) _ _) = evaluateCode opts
       main' _                           = putStrLn $ "sorry, this option is not implemented!"

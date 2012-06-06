@@ -6,8 +6,6 @@ import Data.Maybe
 import Data.Graph.Inductive.Utils
 import Automata.DFA.AST
 
-import Debug.Trace
-
 evaluateDFA :: DFA -> [String] -> Bool
 evaluateDFA (DFA initialState _ graph) input = isAccepting finalState
     where
