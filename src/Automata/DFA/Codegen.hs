@@ -12,13 +12,14 @@ import Automata.DFA.AST
 filetop = unlines [ "module Main where"
                   , ""
                   , "main = do"
-                  , "  input <- read $ getContents :: [String]"
-                  , "  putStrLn $ initialState input" 
+                  , "  contents <- lines `fmap` getContents"
+                  , "  mapM_ (putStrLn . initialState . read) contents"
+                  , ""
                   ]
 
 header :: DFA -> String
 header dfa@(DFA (_, (State initialState _)) _ _) = 
-    printf "%s\ninitialState = %s\n" filetop initialState
+    printf "%sinitialState = %s\n" filetop initialState
 
 dfaToHaskell :: DFA -> String
 dfaToHaskell dfa@(DFA initialState alphabet graph) = 
