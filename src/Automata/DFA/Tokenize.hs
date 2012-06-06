@@ -1,4 +1,4 @@
-module DFA.Tokenize 
+module Automata.DFA.Tokenize 
   ( tokenize
   , Token(..)
   ) where

@@ -1,4 +1,4 @@
-module DFA.AST 
+module Automata.DFA.AST 
   ( module Data.Graph.Inductive.Graph
   , module Data.Graph.Inductive.Tree
   , Name

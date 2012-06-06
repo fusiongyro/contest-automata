@@ -3,10 +3,14 @@ module Main where
 import System.Environment
 import System.Console.GetOpt
 
-import DFA.Parse
-import DFA.Codegen
+import Automata.DFA
 
-data Mode = Help | Version | GenCode | GenGraphviz | Eval FilePath | Test FilePath
+data Mode = Help 
+          | Version 
+          | GenCode 
+          | GenGraphviz 
+          | Eval FilePath
+          | Test FilePath
   deriving (Show, Eq)
 
 data Options = Options
@@ -69,7 +73,7 @@ generateCode (Options _ outf inf) = do
   input <- getInput inf
   case parseDFA input of
     Left errs -> ioError $ userError $ show errs
-    Right dfa -> writeOutput outf $ generate dfa
+    Right dfa -> writeOutput outf $ dfaToHaskell dfa
 
 main = do
   commandLine <- parseCommandLine

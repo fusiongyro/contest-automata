@@ -1,4 +1,4 @@
-module DFA.Codegen (generate) where
+module Automata.DFA.Codegen (dfaToHaskell) where
 
 import Data.Function
 import Data.List
@@ -7,20 +7,21 @@ import Text.Printf
 import Data.Graph.Inductive.Graph
 import Data.Graph.Inductive.Utils
 
-import DFA.AST
+import Automata.DFA.AST
 
-filetop = "module Main where\n\
-\\n\
-\main = do\n\
-\  input <- read $ getContents :: [String]\n\
-\  putStrLn $ initialState input"
+filetop = unlines [ "module Main where"
+                  , ""
+                  , "main = do"
+                  , "  input <- read $ getContents :: [String]"
+                  , "  putStrLn $ initialState input" 
+                  ]
 
 header :: DFA -> String
 header dfa@(DFA (_, (State initialState _)) _ _) = 
     printf "%s\ninitialState = %s\n" filetop initialState
 
-generate :: DFA -> String
-generate dfa@(DFA initialState alphabet graph) = 
+dfaToHaskell :: DFA -> String
+dfaToHaskell dfa@(DFA initialState alphabet graph) = 
   unlines $ header dfa : map generator (labNodes graph)
     where
       -- Generates the function for each node in the graph

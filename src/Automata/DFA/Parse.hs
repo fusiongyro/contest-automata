@@ -1,4 +1,4 @@
-module DFA.Parse (parseDFA) where
+module Automata.DFA.Parse (parseDFA) where
 
 import Control.Monad (void)
 import Control.Applicative ((<$>), (<*>), (<*), (*>))
@@ -12,8 +12,8 @@ import Text.Parsec.Pos
 import Text.Parsec.Error
 
 import Data.Graph.Inductive.Utils
-import DFA.Tokenize
-import DFA.AST
+import Automata.DFA.Tokenize
+import Automata.DFA.AST
 
 type TokenParser = GenParser Token ()
 type TokenParserSt u = GenParser Token u

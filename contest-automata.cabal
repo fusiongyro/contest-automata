@@ -30,10 +30,11 @@ Executable contest-automata
   HS-Source-Dirs: src
 
   Other-modules:
-    DFA.AST,
-    DFA.Codegen,
-    DFA.Parse,
-    DFA.Tokenize,
+    Automata.DFA
+    Automata.DFA.AST,
+    Automata.DFA.Codegen,
+    Automata.DFA.Parse,
+    Automata.DFA.Tokenize,
     Data.Graph.Inductive.Utils
   
   -- Packages needed in order to build this package.
