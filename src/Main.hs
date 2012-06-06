@@ -90,6 +90,20 @@ evaluateInput dfa testf = do
     where
       showAcceptance input = if evaluateMachine dfa input then "Accept" else "Reject"
 
+validateCode :: Options -> IO ()
+validateCode (Options (Test verifyf) outf inf) = do
+  input <- getInput inf
+  case parseMachine input :: Either String DFA of
+    Left errs -> ioError $ userError errs
+    Right dfa -> validateInput dfa verifyf >>= writeOutput outf
+
+validateInput :: (Automaton a) => a -> FilePath -> IO String
+validateInput dfa verifyf = do
+  testContent <- (map read . lines) `fmap` getInput verifyf
+  let inputs  = map fst testContent
+  let expects = map snd testContent
+  return $ show (verifyMachine dfa inputs expects) ++ "\n"
+
 main = do
   commandLine <- parseCommandLine
   main' commandLine
@@ -98,4 +112,5 @@ main = do
       main'      (Options Help _ _)     = putStrLn $ usageInfo usage options
       main' opts@(Options GenCode _ _)  = generateCode opts
       main' opts@(Options (Eval _) _ _) = evaluateCode opts
+      main' opts@(Options (Test _) _ _) = validateCode opts
       main' _                           = putStrLn $ "sorry, this option is not implemented!"
