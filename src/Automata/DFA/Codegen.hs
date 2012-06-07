@@ -18,7 +18,7 @@ filetop = unlines [ "module Main where"
                   ]
 
 header :: DFA -> String
-header dfa@(DFA (_, (State initialState _)) _ _) = 
+header dfa@(DFA (_, State initialState _) _ _) = 
     printf "%sinitialState = %s\n" filetop initialState
 
 dfaToHaskell :: DFA -> String

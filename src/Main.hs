@@ -114,9 +114,9 @@ main = do
   commandLine <- parseCommandLine
   main' commandLine
     where
-      main'      (Options Version _ _)       = putStrLn $ versionInfo
+      main'      (Options Version _ _)       = putStrLn versionInfo
       main'      (Options Help _ _)          = putStrLn $ usageInfo usage options
       main' opts@(Options GenCode _ _)       = generateCode opts
       main' opts@(Options mode@(Eval _) _ _) = evaluateCode mode opts
       main' opts@(Options mode@(Test _) _ _) = validateCode mode opts
-      main' _                                = putStrLn $ "sorry, this option is not implemented!"
+      main' _                                = putStrLn "sorry, this option is not implemented!"
