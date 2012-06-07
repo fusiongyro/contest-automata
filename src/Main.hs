@@ -1,5 +1,6 @@
 module Main where
 
+import Control.Applicative
 import System.Environment
 import System.Console.GetOpt
 
@@ -76,33 +77,29 @@ generateCode (Options _ outf inf) = do
     Left errs -> ioError $ userError errs
     Right dfa -> writeOutput outf $ machineToHaskell dfa
 
-evaluateCode :: Options -> IO ()
-evaluateCode (Options (Eval testf) outf inf) = do
+processMachine :: Options -> (DFA -> IO String) -> IO ()
+processMachine opts@(Options _ outf inf) f = do
   input <- getInput inf
   case parseMachine input :: Either String DFA of
     Left errs -> ioError $ userError errs
-    Right dfa -> evaluateInput dfa testf >>= writeOutput outf
+    Right dfa -> f dfa >>= writeOutput outf
 
-evaluateInput :: (Automaton a) => a -> FilePath -> IO String
-evaluateInput dfa testf = do
-  testContent <- (map read . lines) `fmap` getInput testf
-  return $ unlines $ map showAcceptance testContent
-    where
-      showAcceptance input = if evaluateMachine dfa input then "Accept" else "Reject"
+evaluateCode :: Options -> IO ()
+evaluateCode opts@(Options (Eval testf) outf inf) = 
+    processMachine opts $ \dfa -> do
+      testContent <- (map read . lines) <$> getInput testf
+      return $ unlines $ map (acceptOrReject . evaluateMachine dfa) testContent
+  where
+    acceptOrReject True = "Accept"
+    acceptOrReject False = "Reject"
 
 validateCode :: Options -> IO ()
-validateCode (Options (Test verifyf) outf inf) = do
-  input <- getInput inf
-  case parseMachine input :: Either String DFA of
-    Left errs -> ioError $ userError errs
-    Right dfa -> validateInput dfa verifyf >>= writeOutput outf
-
-validateInput :: (Automaton a) => a -> FilePath -> IO String
-validateInput dfa verifyf = do
-  testContent <- (map read . lines) `fmap` getInput verifyf
-  let inputs  = map fst testContent
-  let expects = map snd testContent
-  return $ show (verifyMachine dfa inputs expects) ++ "\n"
+validateCode opts@(Options (Test verifyf) outf inf) = 
+  processMachine opts $ \dfa -> do
+    testContent <- (map read . lines) <$> getInput verifyf
+    let inputs  = map fst testContent
+    let expects = map snd testContent
+    return $ show (verifyMachine dfa inputs expects) ++ "\n"
 
 main = do
   commandLine <- parseCommandLine
