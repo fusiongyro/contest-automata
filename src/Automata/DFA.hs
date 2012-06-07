@@ -9,7 +9,6 @@ import Automata.DFA.Tokenize
 import Automata.DFA.Evaluate
 
 instance Automaton DFA where
-  parseMachine     = parseDFA
   machineToHaskell = dfaToHaskell
   evaluateMachine  = evaluateDFA
   graphMachine     = undefined

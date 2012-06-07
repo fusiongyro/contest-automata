@@ -1,10 +1,15 @@
 module Automata.Automaton where
 
 class Automaton a where
-  -- | Parse a document into an automaton
-  parseMachine     :: String -> Either String a
+  -- | Evaluates this automaton with the given input sequence, 
+  -- returning true if it arrived in an accepting state
   evaluateMachine  :: a -> [String] -> Bool
+
+  -- | Convert this automaton into GraphViz input text
   graphMachine     :: a -> String
+
+  -- | Convert this automaton into executable Haskell code 
+  -- suitable for standalone compilation
   machineToHaskell :: a -> String
 
 -- | Verify an automaton by running it against input with known behavior. 

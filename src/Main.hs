@@ -71,16 +71,13 @@ writeOutput "-"      = putStr
 writeOutput filename = writeFile filename
 
 generateCode :: Options -> IO ()
-generateCode (Options _ outf inf) = do
-  input <- getInput inf
-  case parseMachine input :: Either String DFA of
-    Left errs -> ioError $ userError errs
-    Right dfa -> writeOutput outf $ machineToHaskell dfa
+generateCode opts@(Options _ outf inf) = do
+  processMachine opts $ return . machineToHaskell
 
 processMachine :: Options -> (DFA -> IO String) -> IO ()
 processMachine opts@(Options _ outf inf) f = do
   input <- getInput inf
-  case parseMachine input :: Either String DFA of
+  case parseDFA input of
     Left errs -> ioError $ userError errs
     Right dfa -> f dfa >>= writeOutput outf
 
