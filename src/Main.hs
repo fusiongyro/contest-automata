@@ -70,28 +70,26 @@ writeOutput :: FilePath -> String -> IO ()
 writeOutput "-"      = putStr
 writeOutput filename = writeFile filename
 
-generateCode :: Options -> IO ()
-generateCode opts@(Options _ outf inf) = do
-  processMachine opts $ return . machineToHaskell
-
 processMachine :: Options -> (DFA -> IO String) -> IO ()
-processMachine opts@(Options _ outf inf) f = do
+processMachine (Options _ outf inf) f = do
   input <- getInput inf
   case parseDFA input of
     Left errs -> ioError $ userError errs
     Right dfa -> f dfa >>= writeOutput outf
 
-evaluateCode :: Options -> IO ()
-evaluateCode opts@(Options (Eval testf) outf inf) = 
+generateCode :: Options -> IO ()
+generateCode opts = processMachine opts $ return . machineToHaskell
+
+evaluateCode :: Mode -> Options -> IO ()
+evaluateCode (Eval testf) opts = 
     processMachine opts $ \dfa -> do
       testContent <- (map read . lines) <$> getInput testf
       return $ unlines $ map (acceptOrReject . evaluateMachine dfa) testContent
   where
-    acceptOrReject True = "Accept"
-    acceptOrReject False = "Reject"
+    acceptOrReject x = if x then "Accept" else "Reject"
 
-validateCode :: Options -> IO ()
-validateCode opts@(Options (Test verifyf) outf inf) = 
+validateCode :: Mode -> Options -> IO ()
+validateCode (Test verifyf) opts = 
   processMachine opts $ \dfa -> do
     testContent <- (map read . lines) <$> getInput verifyf
     let inputs  = map fst testContent
@@ -102,9 +100,9 @@ main = do
   commandLine <- parseCommandLine
   main' commandLine
     where
-      main'      (Options Version _ _)  = putStrLn $ versionInfo
-      main'      (Options Help _ _)     = putStrLn $ usageInfo usage options
-      main' opts@(Options GenCode _ _)  = generateCode opts
-      main' opts@(Options (Eval _) _ _) = evaluateCode opts
-      main' opts@(Options (Test _) _ _) = validateCode opts
-      main' _                           = putStrLn $ "sorry, this option is not implemented!"
+      main'      (Options Version _ _)       = putStrLn $ versionInfo
+      main'      (Options Help _ _)          = putStrLn $ usageInfo usage options
+      main' opts@(Options GenCode _ _)       = generateCode opts
+      main' opts@(Options mode@(Eval _) _ _) = evaluateCode mode opts
+      main' opts@(Options mode@(Test _) _ _) = validateCode mode opts
+      main' _                                = putStrLn $ "sorry, this option is not implemented!"
