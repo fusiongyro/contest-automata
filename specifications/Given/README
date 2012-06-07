@@ -1,0 +1,18 @@
+Haskell program: 
+Use the fact that NFA has five elements to it:
+finite set of states - Q
+finite set of input symbols - sigma
+transition relation - delta: QxSigma -> P(Q)
+an initial state
+
+*Inputs 
+put the list of inputed lists to test 
+
+*NFA
+Built by some other code, used to pop elements off the list
+
+*Final States 
+the final states of there machine, does not have to be with the 
+other functions
+
+

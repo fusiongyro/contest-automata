@@ -1,0 +1,4 @@
+This puzzle will ask the user to input a DFA that accepts even stings
+only.
+
+Given: a string of 1(s)

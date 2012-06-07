@@ -1,0 +1,54 @@
+Name:                contest-automata
+Version:             0.1
+Synopsis:            Automata compiler/executor
+Description:         Run various automata against known inputs for contests
+License:             BSD3
+License-file:        LICENSE
+Author:              Daniel Lyons
+Maintainer:          fusion@storytotell.org
+Category:            Contest
+Build-type:          Simple
+
+Extra-source-files: README.txt
+
+Cabal-version:       >=1.6
+
+
+Source-Repository head
+  type: 		mercurial
+  location:   	https://fusiongyro@bitbucket.org/fusiongyro/contest-automata
+
+-- Source-Repository this
+--   type: 		mercurial
+--   location:  https://fusiongyro@bitbucket.org/fusiongyro/contest-automata/...
+
+
+Executable contest-automata
+  -- .hs or .lhs file containing the Main module.
+  Main-is: Main.hs
+
+  HS-Source-Dirs: src
+
+  Other-modules:
+    Automata
+    Automata.Automaton
+    Automata.DFA
+    Automata.DFA.AST,
+    Automata.DFA.Codegen,
+    Automata.DFA.Evaluate
+    Automata.DFA.Parse,
+    Automata.DFA.Tokenize,
+    Data.Graph.Inductive.Utils
+  
+  -- Packages needed in order to build this package.
+  Build-depends: 
+    base >= 4.0,
+    parsec >= 3.1.2,
+    fgl >= 5.4.2.4
+  
+  -- Modules not exported by this package.
+  -- Other-modules:       
+  
+  -- Extra tools (e.g. alex, hsc2hs, ...) needed to build the source.
+  -- Build-tools:         
+  
