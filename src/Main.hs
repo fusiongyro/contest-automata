@@ -32,15 +32,19 @@ usage = "Usage: contest-automata [OPTION...] input"
 
 versionInfo = "contest-automata version " ++ version
 
+-- | Set the mode of the option record
 setMode :: Mode -> Options -> Options
 setMode mode o = o { optMode = mode }
 
+-- | Set the output filename of the option record
 setOutput :: FilePath -> Options -> Options
 setOutput fp o = o { optOutputFile = fp }
 
+-- | Set the input filename of the option record
 setInput :: FilePath -> Options -> Options
 setInput fp o = o { optInputFile = fp }
 
+-- | The option descriptions
 options :: [OptDescr (Options -> Options)]
 options = 
   [ Option "v" ["version"]  (NoArg  (setMode Version))         "show version"
@@ -52,6 +56,7 @@ options =
   , Option "o" ["output"]   (ReqArg  setOutput       "OUTPUT") "output file"
   ]
 
+-- | Parse the command line into an Option record based on the arguments
 parseCommandLine :: IO Options
 parseCommandLine = do
     argv <- getArgs
@@ -62,14 +67,19 @@ parseCommandLine = do
     finalize o []      = foldl (flip id) defaultOptions o
     finalize o [input] = setInput input $ finalize o []
 
+-- | Contents of the named file or standard input if the filename is "-"
 getInput :: FilePath -> IO String
 getInput "-"      = getContents
 getInput filename = readFile filename
 
+-- | Write string to named file or standard output if filename is "-"
 writeOutput :: FilePath -> String -> IO ()
 writeOutput "-"      = putStr
 writeOutput filename = writeFile filename
 
+-- | Read the machine from the specified input file. If successful, 
+-- farm it off to a function that converts it to a string of some stripe. 
+-- Take that and output it to the specified output file.
 processMachine :: Options -> (DFA -> IO String) -> IO ()
 processMachine (Options _ outf inf) f = do
   input <- getInput inf
@@ -77,9 +87,11 @@ processMachine (Options _ outf inf) f = do
     Left errs -> ioError $ userError errs
     Right dfa -> f dfa >>= writeOutput outf
 
+-- | Convert the DFA of the input file into Haskell code in the output file
 generateCode :: Options -> IO ()
 generateCode opts = processMachine opts $ return . machineToHaskell
 
+-- | Run the DFA with the specified DFA input file. Output results.
 evaluateCode :: Mode -> Options -> IO ()
 evaluateCode (Eval testf) opts = 
     processMachine opts $ \dfa -> do
@@ -88,6 +100,8 @@ evaluateCode (Eval testf) opts =
   where
     acceptOrReject x = if x then "Accept" else "Reject"
 
+-- | Run the DFA with the specified DFA test file. If all the tests pass,
+-- print True; otherwise print False
 validateCode :: Mode -> Options -> IO ()
 validateCode (Test verifyf) opts = 
   processMachine opts $ \dfa -> do

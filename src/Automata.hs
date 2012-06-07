@@ -3,6 +3,9 @@ module Automata where
 import Automata.Automaton
 import Automata.DFA
 
+-- This is a demonstration only. Will need to be fleshed out more once we have
+-- PDA and Turing machine implementations.
+
 data Machine = DFAMachine DFA | Other
 
 instance Automaton Machine where
