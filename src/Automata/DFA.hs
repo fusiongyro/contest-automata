@@ -10,4 +10,4 @@ import Automata.DFA.Tokenize
 instance Automaton DFA where
   machineToHaskell = dfaToHaskell
   evaluateMachine  = evaluateDFA
-  graphMachine     = undefined
+  graphMachine     = toGraphViz

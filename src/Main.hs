@@ -91,6 +91,10 @@ processMachine (Options _ outf inf) f = do
 generateCode :: Options -> IO ()
 generateCode opts = processMachine opts $ return . machineToHaskell
 
+-- | Convert the DFA of the input file into GraphViz output
+generateGraphviz :: Options -> IO ()
+generateGraphviz opts = processMachine opts $ return . graphMachine
+
 -- | Run the DFA with the specified DFA input file. Output results.
 evaluateCode :: Mode -> Options -> IO ()
 evaluateCode (Eval testf) opts = 
@@ -117,6 +121,7 @@ main = do
       main'      (Options Version _ _)       = putStrLn versionInfo
       main'      (Options Help _ _)          = putStrLn $ usageInfo usage options
       main' opts@(Options GenCode _ _)       = generateCode opts
+      main' opts@(Options GenGraphviz _ _)   = generateGraphviz opts
       main' opts@(Options mode@(Eval _) _ _) = evaluateCode mode opts
       main' opts@(Options mode@(Test _) _ _) = validateCode mode opts
-      main' _                                = putStrLn "sorry, this option is not implemented!"
+
