@@ -10,7 +10,8 @@ module Automata.DFA.AST
   , edgesFrom
   , isAccepting
   , initialState
-  , transitionFrom) where
+  , transitionFrom
+  , evaluateDFA) where
 
 import Data.List
 import Data.Maybe
@@ -57,6 +58,12 @@ isAccepting (DFA _ _ acceptingStates _) state = S.member state acceptingStates
 insertTransition :: EdgeMap -> Transition -> EdgeMap
 insertTransition map (from, reading, to) = 
   M.insertWith (++) from [(reading, to)] map
+
+-- | True if this DFA accepts the supplied list of input symbols
+evaluateDFA :: DFA -> [String] -> Bool
+evaluateDFA dfa input = isAccepting dfa finalState
+    where
+      finalState = foldl (transitionFrom dfa) (initialState dfa) input
 
 -- | Generate the DFA from the stuff we have parsed.
 makeDFA :: [Name] -> Alphabet -> Name -> [Name] -> [Transition] -> DFA

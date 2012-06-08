@@ -33,10 +33,9 @@ Executable contest-automata
     Automata
     Automata.Automaton
     Automata.DFA
-    Automata.DFA.AST,
-    Automata.DFA.Codegen,
-    Automata.DFA.Evaluate
-    Automata.DFA.Parse,
+    Automata.DFA.AST
+    Automata.DFA.Codegen
+    Automata.DFA.Parse
     Automata.DFA.Tokenize
   
   -- Packages needed in order to build this package.
