@@ -45,7 +45,7 @@ edgesFrom (DFA _ _ _ edges) name = M.findWithDefault [] name edges
 
 -- | Find the new state given a DFA, a start state and a symbol
 transitionFrom :: DFA -> Name -> Symbol -> Name 
-transitionFrom dfa start reading = snd $ fromJust $ find matchingSymbol $ out
+transitionFrom dfa start reading = snd $ fromJust $ find matchingSymbol out
   where
     out = edgesFrom dfa start
     matchingSymbol (thisSymbol, _) = reading == thisSymbol
