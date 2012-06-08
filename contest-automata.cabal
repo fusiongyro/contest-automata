@@ -37,14 +37,13 @@ Executable contest-automata
     Automata.DFA.Codegen,
     Automata.DFA.Evaluate
     Automata.DFA.Parse,
-    Automata.DFA.Tokenize,
-    Data.Graph.Inductive.Utils
+    Automata.DFA.Tokenize
   
   -- Packages needed in order to build this package.
   Build-depends: 
     base >= 4.0,
     parsec >= 3.1.2,
-    fgl >= 5.4.2.4
+    containers >= 0.4.0.0
   
   -- Modules not exported by this package.
   -- Other-modules:       
