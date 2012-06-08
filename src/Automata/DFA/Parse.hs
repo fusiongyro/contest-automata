@@ -11,7 +11,6 @@ import Text.Parsec.Prim hiding (State)
 import Text.Parsec.Pos
 import Text.Parsec.Error
 
-import Data.Graph.Inductive.Utils
 import Automata.DFA.Tokenize
 import Automata.DFA.AST
 
