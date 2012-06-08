@@ -11,10 +11,12 @@ module Automata.DFA.AST
   , isAccepting
   , initialState
   , transitionFrom
-  , evaluateDFA) where
+  , evaluateDFA
+  , toGraphViz) where
 
 import Data.List
 import Data.Maybe
+import Text.Printf
 
 import qualified Data.Set as S
 import qualified Data.Map as M
@@ -64,6 +66,14 @@ evaluateDFA :: DFA -> [String] -> Bool
 evaluateDFA dfa input = isAccepting dfa finalState
     where
       finalState = foldl (transitionFrom dfa) (initialState dfa) input
+
+toGraphViz :: DFA -> String
+toGraphViz (DFA initialState _ acceptingStates edges) =
+    printf "digraph G {\n%s\n}" (unlines body)
+        where
+          body = M.foldrWithKey edgesToGraphViz [] edges
+          edgesToGraphViz from edges rest = unlines (map (edgeToGraphViz from) edges) : rest
+          edgeToGraphViz from (reading, to) = printf "%s -> %s [label=%s]" from to reading
 
 -- | Generate the DFA from the stuff we have parsed.
 makeDFA :: [Name] -> Alphabet -> Name -> [Name] -> [Transition] -> DFA
