@@ -64,7 +64,7 @@ parseCommandLine = do
       (o, args, []) -> return $ finalize o args
       (_, _, errors) -> ioError $ userError $ concat errors ++ usageInfo usage options  
   where
-    finalize o []      = foldl (flip id) defaultOptions o
+    finalize o []      = foldl (flip ($)) defaultOptions o
     finalize o [input] = setInput input $ finalize o []
 
 -- | Contents of the named file or standard input if the filename is "-"
