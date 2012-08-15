@@ -69,8 +69,9 @@ evaluateDFA dfa input = isAccepting dfa finalState
 
 toGraphViz :: DFA -> String
 toGraphViz (DFA initialState _ acceptingStates edges) =
-    printf "digraph G {\n%s\n}" (unlines body)
+    printf "digraph G {\n%s\n}" $ unlines $ header ++ body
         where
+          header = map (\s -> printf "%s [shape=doublecircle]" s) $ S.elems acceptingStates
           body = M.foldrWithKey edgesToGraphViz [] edges
           edgesToGraphViz from edges rest = unlines (map (edgeToGraphViz from) edges) : rest
           edgeToGraphViz from (reading, to) = printf "%s -> %s [label=%s]" from to reading
