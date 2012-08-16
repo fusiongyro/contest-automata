@@ -21,6 +21,8 @@ import Text.Printf
 import qualified Data.Set as S
 import qualified Data.Map as M
 
+import Data.String.Builder
+
 type Name     = String
 type Symbol   = String
 type Alphabet = [Symbol]
@@ -68,13 +70,18 @@ evaluateDFA dfa input = isAccepting dfa finalState
       finalState = foldl (transitionFrom dfa) (initialState dfa) input
 
 toGraphViz :: DFA -> String
-toGraphViz (DFA initialState _ acceptingStates edges) =
-    printf "digraph G {\n\n%s}\n" $ unlines $ header ++ [""] ++ body
-        where
-          header = map (\s -> printf "  %s [shape=doublecircle]" s) $ S.elems acceptingStates
-          body = M.foldrWithKey edgesToGraphViz [] edges
-          edgesToGraphViz from edges rest = unlines (map (edgeToGraphViz from) edges) : rest
-          edgeToGraphViz from (reading, to) = printf "  %s -> %s [label=%s]" from to reading
+toGraphViz (DFA initialState _ acceptingStates edges) = buildString $ do
+  writeLn "digraph G {"
+  indent $ do
+    writeLines $ declareAcceptingStates $ S.elems acceptingStates
+    newline
+    writeLines $ M.foldrWithKey visualizeEdge [] edges
+  writeLn "}"
+    where
+      declareAcceptingStates = map $ printf "%s [shape=doublecircle]"
+
+      visualizeEdge from edges rest = unlines (map (edgeViz from) edges) : rest
+      edgeViz from (reading, to) = printf "%s -> %s [label=%s]" from to reading
 
 -- | Generate the DFA from the stuff we have parsed.
 makeDFA :: [Name] -> Alphabet -> Name -> [Name] -> [Transition] -> DFA
