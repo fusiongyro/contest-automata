@@ -4,8 +4,7 @@ import Control.Applicative
 import System.Environment
 import System.Console.GetOpt
 
-import Automata.Automaton
-import Automata.DFA
+import Automata
 
 data Mode = Help 
           | Version 
@@ -17,12 +16,14 @@ data Mode = Help
 
 data Options = Options
   { optMode        :: Mode
+  , optType        :: MachineType
   , optOutputFile  :: FilePath 
   , optInputFile   :: FilePath
   } deriving (Show, Eq)
 
 defaultOptions = Options 
   { optMode        = Help
+  , optType        = DFAType
   , optOutputFile  = "-"
   , optInputFile   = "-"
   }
@@ -44,16 +45,21 @@ setOutput fp o = o { optOutputFile = fp }
 setInput :: FilePath -> Options -> Options
 setInput fp o = o { optInputFile = fp }
 
+-- | Set the type of the machine we're using
+setType :: MachineType -> Options -> Options
+setType ty o = o { optType = ty }
+
 -- | The option descriptions
 options :: [OptDescr (Options -> Options)]
 options = 
   [ Option "v" ["version"]  (NoArg  (setMode Version))         "show version"
   , Option "h" ["help"]     (NoArg  (setMode Help))            "show this help"
-  , Option "c" ["compile"]  (NoArg  (setMode GenCode))         "compile the DFA"
+  , Option "c" ["compile"]  (NoArg  (setMode GenCode))         "compile the machine"
   , Option "g" ["graphviz"] (NoArg  (setMode GenGraphviz))     "generate graphviz"
   , Option "e" ["eval"]     (ReqArg (setMode . Eval) "INPUT")  "evaluate input"
   , Option "t" ["test"]     (ReqArg (setMode . Test) "TESTS")  "test this case"
   , Option "o" ["output"]   (ReqArg  setOutput       "OUTPUT") "output file"
+  , Option "m" ["type"]     (ReqArg (setType . read) "TYPE")   "machine type (default: DFA)"
   ]
 
 -- | Parse the command line into an Option record based on the arguments
@@ -80,48 +86,48 @@ writeOutput filename = writeFile filename
 -- | Read the machine from the specified input file. If successful, 
 -- farm it off to a function that converts it to a string of some stripe. 
 -- Take that and output it to the specified output file.
-processMachine :: Options -> (DFA -> IO String) -> IO ()
-processMachine (Options _ outf inf) f = do
+processMachine :: Options -> (Machine -> IO String) -> IO ()
+processMachine (Options _ ty outf inf) f = do
   input <- getInput inf
-  case parseDFA input of
+  case parseMachine ty input of
     Left errs -> ioError $ userError errs
-    Right dfa -> f dfa >>= writeOutput outf
+    Right m   -> f m >>= writeOutput outf
 
--- | Convert the DFA of the input file into Haskell code in the output file
+-- | Convert the machine of the input file into Haskell code in the output file
 generateCode :: Options -> IO ()
 generateCode opts = processMachine opts $ return . machineToHaskell
 
--- | Convert the DFA of the input file into GraphViz output
+-- | Convert the machine of the input file into GraphViz output
 generateGraphviz :: Options -> IO ()
 generateGraphviz opts = processMachine opts $ return . graphMachine
 
--- | Run the DFA with the specified DFA input file. Output results.
+-- | Run the machine with the specified machine input file. Output results.
 evaluateCode :: Mode -> Options -> IO ()
 evaluateCode (Eval testf) opts = 
-    processMachine opts $ \dfa -> do
+    processMachine opts $ \m -> do
       testContent <- (map read . lines) <$> getInput testf
-      return $ unlines $ map (acceptOrReject . evaluateMachine dfa) testContent
+      return $ unlines $ map (acceptOrReject . evaluateMachine m) testContent
   where
     acceptOrReject x = if x then "Accept" else "Reject"
 
--- | Run the DFA with the specified DFA test file. If all the tests pass,
+-- | Run the machine with the specified machine test file. If all the tests pass,
 -- print True; otherwise print False
 validateCode :: Mode -> Options -> IO ()
 validateCode (Test verifyf) opts = 
-  processMachine opts $ \dfa -> do
+  processMachine opts $ \m -> do
     testContent <- (map read . lines) <$> getInput verifyf
     let inputs  = map fst testContent
     let expects = map snd testContent
-    return $ show (verifyMachine dfa inputs expects) ++ "\n"
+    return $ show (verifyMachine m inputs expects) ++ "\n"
 
 main = do
   commandLine <- parseCommandLine
   main' commandLine
     where
-      main'      (Options Version _ _)       = putStrLn versionInfo
-      main'      (Options Help _ _)          = putStrLn $ usageInfo usage options
-      main' opts@(Options GenCode _ _)       = generateCode opts
-      main' opts@(Options GenGraphviz _ _)   = generateGraphviz opts
-      main' opts@(Options mode@(Eval _) _ _) = evaluateCode mode opts
-      main' opts@(Options mode@(Test _) _ _) = validateCode mode opts
+      main'      (Options Version _ _ _)       = putStrLn versionInfo
+      main'      (Options Help _ _ _)          = putStrLn $ usageInfo usage options
+      main' opts@(Options GenCode _ _ _)       = generateCode opts
+      main' opts@(Options GenGraphviz _ _ _)   = generateGraphviz opts
+      main' opts@(Options mode@(Eval _) _ _ _) = evaluateCode mode opts
+      main' opts@(Options mode@(Test _) _ _ _) = validateCode mode opts
 
